@@ -1,0 +1,342 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Summation registers &#8212; pysumreg 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Change History" href="changes.html" />
+    <link rel="prev" title="pysumreg" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="summation-registers">
+<h1>Summation registers<a class="headerlink" href="#summation-registers" title="Permalink to this heading">¶</a></h1>
+<p>Statistics of list of (x, y) pairs from calculator-style summation registers.</p>
+<section id="module-pysumreg.sum_registers">
+<span id="source-code"></span><h2>source code<a class="headerlink" href="#module-pysumreg.sum_registers" title="Permalink to this heading">¶</a></h2>
+<p>Statistics of list of (x, y) pairs from calculator-style summation registers.</p>
+<ul class="simple">
+<li><p>mean, standard deviation, max, min of x &amp; y</p></li>
+<li><p>linear regression &amp; correlation coefficient</p></li>
+<li><p>peak analysis: centroid and width of x weighted by y</p></li>
+</ul>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters" title="pysumreg.sum_registers.SummationRegisters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SummationRegisters</span></code></a>()</p></td>
+<td><p>Summation registers in the style of a pocket calculator.</p></td>
+</tr>
+</tbody>
+</table>
+<p>References:</p>
+<ul class="simple">
+<li><p>“Engineering Statistics with a Programmable Calculator”, William Volk,
+1982, McGraw-Hill Companies, New York, ISBN 10: 007067552,
+ISBN 13: 9780070675520.</p></li>
+<li><p><a class="reference external" href="https://goodcalculators.com/linear-regression-calculator/">https://goodcalculators.com/linear-regression-calculator/</a></p></li>
+<li><p><a class="reference external" href="https://www.statssolver.com/simple-regression.html">https://www.statssolver.com/simple-regression.html</a></p></li>
+</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pysumreg.sum_registers.</span></span><span class="sig-name descname"><span class="pre">SummationRegisters</span></span><a class="reference internal" href="_modules/pysumreg/sum_registers.html#SummationRegisters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Summation registers in the style of a pocket calculator.</p>
+<p>Operations</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.clear" title="pysumreg.sum_registers.SummationRegisters.clear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear</span></code></a>()</p></td>
+<td><p>Clear the <span class="math notranslate nohighlight">\(\sum{}\)</span> summation registers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.add" title="pysumreg.sum_registers.SummationRegisters.add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></a>(x, y)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\sum{+}\)</span>: Add <span class="math notranslate nohighlight">\((x, y)\)</span> ordered pair to the registers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.subtract" title="pysumreg.sum_registers.SummationRegisters.subtract"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subtract</span></code></a>(x, y)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\sum{-}\)</span>: Subtract <span class="math notranslate nohighlight">\((x, y)\)</span> ordered pair from the registers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.to_dict" title="pysumreg.sum_registers.SummationRegisters.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>([use_registers])</p></td>
+<td><p>Return all statistics as dictionary.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Statistical Parameters</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.mean_x" title="pysumreg.sum_registers.SummationRegisters.mean_x"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_x</span></code></a></p></td>
+<td><p>Average of <span class="math notranslate nohighlight">\(x\)</span> values.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.mean_y" title="pysumreg.sum_registers.SummationRegisters.mean_y"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_y</span></code></a></p></td>
+<td><p>Average of <span class="math notranslate nohighlight">\(y\)</span> values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.stddev_x" title="pysumreg.sum_registers.SummationRegisters.stddev_x"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stddev_x</span></code></a></p></td>
+<td><p>Standard deviation of <span class="math notranslate nohighlight">\(x\)</span> values.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.stddev_y" title="pysumreg.sum_registers.SummationRegisters.stddev_y"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stddev_y</span></code></a></p></td>
+<td><p>Standard deviation of <span class="math notranslate nohighlight">\(y\)</span> values.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Linear Parameters</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.slope" title="pysumreg.sum_registers.SummationRegisters.slope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slope</span></code></a></p></td>
+<td><p>First order term (<span class="math notranslate nohighlight">\(b_1\)</span>) in linear fit of <span class="math notranslate nohighlight">\((x,y)\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.intercept" title="pysumreg.sum_registers.SummationRegisters.intercept"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intercept</span></code></a></p></td>
+<td><p>Zero order term (<span class="math notranslate nohighlight">\(b_0\)</span>) in linear fit of <span class="math notranslate nohighlight">\((x,y)\)</span>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.correlation" title="pysumreg.sum_registers.SummationRegisters.correlation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">correlation</span></code></a></p></td>
+<td><p>Regression correlation coefficient (<span class="math notranslate nohighlight">\(r\)</span>) of <span class="math notranslate nohighlight">\((x, y)\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.linear_y" title="pysumreg.sum_registers.SummationRegisters.linear_y"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linear_y</span></code></a>(x)</p></td>
+<td><p>Compute <span class="math notranslate nohighlight">\(\hat{y}\)</span> given <span class="math notranslate nohighlight">\(x\)</span> using slope and intercept.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Peak Parameters</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.centroid" title="pysumreg.sum_registers.SummationRegisters.centroid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">centroid</span></code></a></p></td>
+<td><p>Centroid (<span class="math notranslate nohighlight">\(x_c\)</span>) of <span class="math notranslate nohighlight">\((x, y)\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.sigma" title="pysumreg.sum_registers.SummationRegisters.sigma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sigma</span></code></a></p></td>
+<td><p>The y-weighted variance (<span class="math notranslate nohighlight">\(\sigma_c^2\)</span>) of <span class="math notranslate nohighlight">\((x, y)\)</span>.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysumreg/sum_registers.html#SummationRegisters.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters.add" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math notranslate nohighlight">\(\sum{+}\)</span>: Add <span class="math notranslate nohighlight">\((x, y)\)</span> ordered pair to the registers.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters.centroid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">centroid</span></span><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters.centroid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Centroid (<span class="math notranslate nohighlight">\(x_c\)</span>) of <span class="math notranslate nohighlight">\((x, y)\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[x_c = { \sum{x y} \over \sum{y} }\]</div>
+<p>Regardless of the input <span class="math notranslate nohighlight">\((x, y)\)</span> signal modality (single peak,
+multiple peaks, no peaks at all), it is possible to estimate the center
+(centroid, <span class="math notranslate nohighlight">\(x_c\)</span>) and width (<span class="math notranslate nohighlight">\(2\sigma\)</span>) of the <span class="math notranslate nohighlight">\(x\)</span>
+values assuming the <span class="math notranslate nohighlight">\(y\)</span> values are their associated weights.
+The center should fall between the minimum and maximum given <span class="math notranslate nohighlight">\(x\)</span>
+values.</p>
+<p>See: <a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.sigma" title="pysumreg.sum_registers.SummationRegisters.sigma"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sigma()</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysumreg/sum_registers.html#SummationRegisters.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the <span class="math notranslate nohighlight">\(\sum{}\)</span> summation registers.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters.correlation">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">correlation</span></span><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters.correlation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Regression correlation coefficient (<span class="math notranslate nohighlight">\(r\)</span>) of <span class="math notranslate nohighlight">\((x, y)\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[r = {{n\sum{xy} - \sum{x}\sum{y}} \over \sqrt{(n\sum{x^2}-\sum{x}\sum{x}) (n\sum{y^2}-\sum{y}\sum{y})}}\]</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters.intercept">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">intercept</span></span><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters.intercept" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zero order term (<span class="math notranslate nohighlight">\(b_0\)</span>) in linear fit of <span class="math notranslate nohighlight">\((x,y)\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[y = b_0 + b_1 x\]</div>
+<div class="math notranslate nohighlight">
+\[b_0 = {{\sum{y} - b_1\sum{x}} \over n}\]</div>
+<p>See: <a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.slope" title="pysumreg.sum_registers.SummationRegisters.slope"><code class="xref py py-meth docutils literal notranslate"><span class="pre">slope()</span></code></a>, <a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.linear_y" title="pysumreg.sum_registers.SummationRegisters.linear_y"><code class="xref py py-meth docutils literal notranslate"><span class="pre">linear_y()</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters.linear_y">
+<span class="sig-name descname"><span class="pre">linear_y</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysumreg/sum_registers.html#SummationRegisters.linear_y"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters.linear_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute <span class="math notranslate nohighlight">\(\hat{y}\)</span> given <span class="math notranslate nohighlight">\(x\)</span> using slope and intercept.</p>
+<div class="math notranslate nohighlight">
+\[\hat{y} = b_0 + b_1 x\]</div>
+<p>See: <a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.intercept" title="pysumreg.sum_registers.SummationRegisters.intercept"><code class="xref py py-meth docutils literal notranslate"><span class="pre">intercept()</span></code></a>, <a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.slope" title="pysumreg.sum_registers.SummationRegisters.slope"><code class="xref py py-meth docutils literal notranslate"><span class="pre">slope()</span></code></a></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters.mean_x">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mean_x</span></span><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters.mean_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average of <span class="math notranslate nohighlight">\(x\)</span> values.</p>
+<div class="math notranslate nohighlight">
+\[\bar{x} = {\sum{x} \over n}\]</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters.mean_y">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mean_y</span></span><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters.mean_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average of <span class="math notranslate nohighlight">\(y\)</span> values.</p>
+<div class="math notranslate nohighlight">
+\[\bar{y} = {\sum{y} \over n}\]</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters.sigma">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sigma</span></span><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters.sigma" title="Permalink to this definition">¶</a></dt>
+<dd><p>The y-weighted variance (<span class="math notranslate nohighlight">\(\sigma_c^2\)</span>) of <span class="math notranslate nohighlight">\((x, y)\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\sigma_c^2 = {\sum{y{(x-x_c)}^2} \over \sum{y}}\]</div>
+<p>Regardless of the input <span class="math notranslate nohighlight">\((x, y)\)</span> signal modality (single peak,
+multiple peaks, no peaks at all), it is possible to estimate the center
+(centroid, <span class="math notranslate nohighlight">\(x_c\)</span>) and width (<span class="math notranslate nohighlight">\(2\sigma_c\)</span>) of the <span class="math notranslate nohighlight">\(x\)</span>
+values assuming the <span class="math notranslate nohighlight">\(y\)</span> values are their associated weights.
+The sigma should be less than the span of the <span class="math notranslate nohighlight">\(x\)</span> values.</p>
+<p>See: <a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.centroid" title="pysumreg.sum_registers.SummationRegisters.centroid"><code class="xref py py-meth docutils literal notranslate"><span class="pre">centroid()</span></code></a></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters.slope">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">slope</span></span><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters.slope" title="Permalink to this definition">¶</a></dt>
+<dd><p>First order term (<span class="math notranslate nohighlight">\(b_1\)</span>) in linear fit of <span class="math notranslate nohighlight">\((x,y)\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[y = b_0 + b_1 x\]</div>
+<div class="math notranslate nohighlight">
+\[b_1 = {{n\sum{xy} - \sum{x}\sum{y}} \over {n\sum{x^2} - \sum{x}\sum{x}}}\]</div>
+<p>See: <a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.intercept" title="pysumreg.sum_registers.SummationRegisters.intercept"><code class="xref py py-meth docutils literal notranslate"><span class="pre">intercept()</span></code></a>, <a class="reference internal" href="#pysumreg.sum_registers.SummationRegisters.linear_y" title="pysumreg.sum_registers.SummationRegisters.linear_y"><code class="xref py py-meth docutils literal notranslate"><span class="pre">linear_y()</span></code></a></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters.stddev_x">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stddev_x</span></span><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters.stddev_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standard deviation of <span class="math notranslate nohighlight">\(x\)</span> values.</p>
+<div class="math notranslate nohighlight">
+\[\sigma_x^2 = {{\sum{x^2} - \bar{x}\sum{x}} \over {n-1}}\]</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters.stddev_y">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stddev_y</span></span><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters.stddev_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standard deviation of <span class="math notranslate nohighlight">\(y\)</span> values.</p>
+<div class="math notranslate nohighlight">
+\[\sigma_y^2 = {{\sum{y^2} - \bar{y}\sum{y}} \over {n-1}}\]</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters.subtract">
+<span class="sig-name descname"><span class="pre">subtract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysumreg/sum_registers.html#SummationRegisters.subtract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters.subtract" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math notranslate nohighlight">\(\sum{-}\)</span>: Subtract <span class="math notranslate nohighlight">\((x, y)\)</span> ordered pair from the registers.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pysumreg.sum_registers.SummationRegisters.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_registers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysumreg/sum_registers.html#SummationRegisters.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysumreg.sum_registers.SummationRegisters.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all statistics as dictionary.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> for any unavailable or undefined values.</p>
+<p>PARAMETERS</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">use_registers</span></code> bool:</dt><dd><p>Include values of the summation registers.
+(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">pysumreg</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Summation registers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-pysumreg.sum_registers">source code</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Change History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">pysumreg</a></li>
+      <li>Next: <a href="changes.html" title="next chapter">Change History</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022-2022, Pete R. Jemian.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/sum_registers.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

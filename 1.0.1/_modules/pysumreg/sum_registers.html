@@ -1,0 +1,397 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pysumreg.sum_registers &#8212; pysumreg 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for pysumreg.sum_registers</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Statistics of list of (x, y) pairs from calculator-style summation registers.</span>
+
+<span class="sd">* mean, standard deviation, max, min of x &amp; y</span>
+<span class="sd">* linear regression &amp; correlation coefficient</span>
+<span class="sd">* peak analysis: centroid and width of x weighted by y</span>
+
+<span class="sd">.. autosummary::</span>
+<span class="sd">   ~SummationRegisters</span>
+
+<span class="sd">References:</span>
+
+<span class="sd">* &quot;Engineering Statistics with a Programmable Calculator&quot;, William Volk,</span>
+<span class="sd">  1982, McGraw-Hill Companies, New York, ISBN 10: 007067552,</span>
+<span class="sd">  ISBN 13: 9780070675520.</span>
+<span class="sd">* https://goodcalculators.com/linear-regression-calculator/</span>
+<span class="sd">* https://www.statssolver.com/simple-regression.html</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+
+
+<div class="viewcode-block" id="SummationRegisters"><a class="viewcode-back" href="../../sum_registers.html#pysumreg.sum_registers.SummationRegisters">[docs]</a><span class="k">class</span> <span class="nc">SummationRegisters</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Summation registers in the style of a pocket calculator.</span>
+
+<span class="sd">    Operations</span>
+
+<span class="sd">    .. autosummary::</span>
+<span class="sd">       ~clear</span>
+<span class="sd">       ~add</span>
+<span class="sd">       ~subtract</span>
+<span class="sd">       ~to_dict</span>
+
+<span class="sd">    Statistical Parameters</span>
+
+<span class="sd">    .. autosummary::</span>
+<span class="sd">       ~mean_x</span>
+<span class="sd">       ~mean_y</span>
+<span class="sd">       ~stddev_x</span>
+<span class="sd">       ~stddev_y</span>
+
+<span class="sd">    Linear Parameters</span>
+
+<span class="sd">    .. autosummary::</span>
+<span class="sd">       ~slope</span>
+<span class="sd">       ~intercept</span>
+<span class="sd">       ~correlation</span>
+<span class="sd">       ~linear_y</span>
+
+<span class="sd">    Peak Parameters</span>
+
+<span class="sd">    .. autosummary::</span>
+<span class="sd">       ~centroid</span>
+<span class="sd">       ~sigma</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_property_methods</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        mean_x</span>
+<span class="s2">        mean_y</span>
+<span class="s2">        stddev_x</span>
+<span class="s2">        stddev_y</span>
+<span class="s2">        slope</span>
+<span class="s2">        intercept</span>
+<span class="s2">        correlation</span>
+<span class="s2">        centroid</span>
+<span class="s2">        sigma</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">_registers</span> <span class="o">=</span> <span class="s2">&quot;n X Y XX XY XXY YY&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">_extrema_names</span> <span class="o">=</span> <span class="s2">&quot;min_x max_x min_y max_y x_at_max_y&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SummationRegisters.clear"><a class="viewcode-back" href="../../sum_registers.html#pysumreg.sum_registers.SummationRegisters.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clear the :math:`\sum{}` summation registers.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Y</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">XX</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">XY</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">XXY</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">YY</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_x</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_y</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_x</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_y</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_at_max_y</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+    <span class="k">def</span> <span class="nf">_assess_extrema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Assess min &amp; max of x &amp; y.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_x</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_x</span> <span class="ow">or</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_x</span> <span class="ow">or</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_y</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_y</span> <span class="ow">or</span> <span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_y</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_y</span> <span class="ow">or</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">y</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_y</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x_at_max_y</span> <span class="o">=</span> <span class="n">x</span>
+
+<div class="viewcode-block" id="SummationRegisters.add"><a class="viewcode-back" href="../../sum_registers.html#pysumreg.sum_registers.SummationRegisters.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:math:`\sum{+}`: Add :math:`(x, y)` ordered pair to the registers.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">+=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Y</span> <span class="o">+=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">XX</span> <span class="o">+=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">XY</span> <span class="o">+=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">XXY</span> <span class="o">+=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">YY</span> <span class="o">+=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">y</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assess_extrema</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SummationRegisters.subtract"><a class="viewcode-back" href="../../sum_registers.html#pysumreg.sum_registers.SummationRegisters.subtract">[docs]</a>    <span class="k">def</span> <span class="nf">subtract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:math:`\sum{-}`: Subtract :math:`(x, y)` ordered pair from the registers.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">-=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Y</span> <span class="o">-=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">XX</span> <span class="o">-=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">XY</span> <span class="o">-=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">XXY</span> <span class="o">-=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">YY</span> <span class="o">-=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">y</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assess_extrema</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SummationRegisters.to_dict"><a class="viewcode-back" href="../../sum_registers.html#pysumreg.sum_registers.SummationRegisters.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_registers</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return all statistics as dictionary.</span>
+
+<span class="sd">        Returns ``None`` for any unavailable or undefined values.</span>
+
+<span class="sd">        PARAMETERS</span>
+
+<span class="sd">        ``use_registers`` bool:</span>
+<span class="sd">            Include values of the summation registers.</span>
+<span class="sd">            (default: ``False``)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">param</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="n">v</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">param</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_property_methods</span><span class="p">}</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">param</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extrema_names</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">use_registers</span><span class="p">:</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">param</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registers</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">d</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">use_registers</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">vv</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dd</span><span class="o">.</span><span class="n">items</span><span class="p">())])</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">vv</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mean_x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Average of :math:`x` values.</span>
+
+<span class="sd">        .. math:: \bar{x} = {\sum{x} \over n}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mean_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Average of :math:`y` values.</span>
+
+<span class="sd">        .. math:: \bar{y} = {\sum{y} \over n}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">stddev_x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Standard deviation of :math:`x` values.</span>
+
+<span class="sd">        .. math:: \sigma_x^2 = {{\sum{x^2} - \bar{x}\sum{x}} \over {n-1}}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">XX</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean_x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">stddev_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Standard deviation of :math:`y` values.</span>
+
+<span class="sd">        .. math:: \sigma_y^2 = {{\sum{y^2} - \bar{y}\sum{y}} \over {n-1}}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">YY</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean_y</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">slope</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        First order term (:math:`b_1`) in linear fit of :math:`(x,y)`.</span>
+
+<span class="sd">        .. math:: y = b_0 + b_1 x</span>
+
+<span class="sd">        .. math:: b_1 = {{n\sum{xy} - \sum{x}\sum{y}} \over {n\sum{x^2} - \sum{x}\sum{x}}}</span>
+
+<span class="sd">        See: :meth:`intercept`, :meth:`linear_y`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="c1"># fmt: off</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">XY</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">)</span>
+            <span class="o">/</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">XX</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+            <span class="c1"># fmt: on</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intercept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Zero order term (:math:`b_0`) in linear fit of :math:`(x,y)`.</span>
+
+<span class="sd">        .. math:: y = b_0 + b_1 x</span>
+
+<span class="sd">        .. math:: b_0 = {{\sum{y} - b_1\sum{x}} \over n}</span>
+
+<span class="sd">        See: :meth:`slope`, :meth:`linear_y`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="c1"># fmt: off</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">slope</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+            <span class="o">/</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+            <span class="c1"># fmt: on</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="SummationRegisters.linear_y"><a class="viewcode-back" href="../../sum_registers.html#pysumreg.sum_registers.SummationRegisters.linear_y">[docs]</a>    <span class="k">def</span> <span class="nf">linear_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute :math:`\hat{y}` given :math:`x` using slope and intercept.</span>
+
+<span class="sd">        .. math:: \hat{y} = b_0 + b_1 x</span>
+
+<span class="sd">        See: :meth:`intercept`, :meth:`slope`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">intercept</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">slope</span> <span class="o">*</span> <span class="n">x</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">correlation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Regression correlation coefficient (:math:`r`) of :math:`(x, y)`.</span>
+
+<span class="sd">        .. math:: r = {{n\sum{xy} - \sum{x}\sum{y}} \over \sqrt{(n\sum{x^2}-\sum{x}\sum{x}) (n\sum{y^2}-\sum{y}\sum{y})}}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="c1"># fmt: off</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">XY</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">)</span>
+            <span class="o">/</span>
+            <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">XX</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+                <span class="o">*</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">YY</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="c1"># fmt: on</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">centroid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Centroid (:math:`x_c`) of :math:`(x, y)`.</span>
+
+<span class="sd">        .. math:: x_c = { \sum{x y} \over \sum{y} }</span>
+
+<span class="sd">        Regardless of the input :math:`(x, y)` signal modality (single peak,</span>
+<span class="sd">        multiple peaks, no peaks at all), it is possible to estimate the center</span>
+<span class="sd">        (centroid, :math:`x_c`) and width (:math:`2\sigma`) of the :math:`x`</span>
+<span class="sd">        values assuming the :math:`y` values are their associated weights.</span>
+<span class="sd">        The center should fall between the minimum and maximum given :math:`x`</span>
+<span class="sd">        values.</span>
+
+<span class="sd">        See: :meth:`sigma`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">XY</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The y-weighted variance (:math:`\sigma_c^2`) of :math:`(x, y)`.</span>
+
+<span class="sd">        .. math:: \sigma_c^2 = {\sum{y{(x-x_c)}^2} \over \sum{y}}</span>
+
+<span class="sd">        Regardless of the input :math:`(x, y)` signal modality (single peak,</span>
+<span class="sd">        multiple peaks, no peaks at all), it is possible to estimate the center</span>
+<span class="sd">        (centroid, :math:`x_c`) and width (:math:`2\sigma_c`) of the :math:`x`</span>
+<span class="sd">        values assuming the :math:`y` values are their associated weights.</span>
+<span class="sd">        The sigma should be less than the span of the :math:`x` values.</span>
+
+<span class="sd">        See: :meth:`centroid`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">XXY</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">centroid</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">XY</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">pysumreg</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sum_registers.html">Summation registers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changes.html">Change History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022-2022, Pete R. Jemian.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
